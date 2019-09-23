@@ -1,6 +1,7 @@
 #Python 3.x
 
 import cv2
+import face_recognition
 
 def convertToFrLocationFormat(faceLocations):
     """

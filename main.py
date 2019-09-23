@@ -7,13 +7,13 @@ import glob
 import os
 import sys
 
-from facialDetection import haarDetectFaceLocations
+from facialDetection import haarDetectFaceLocations, hogDetectFaceLocations
 from facialRecognition import getFaceEncodings, recognizeFace
 
 DATABASE_PATH = 'facialDatabase/'
 CAMERA_DEVICE_ID = 0
 
-def addPhoto(fileName):
+def addPhoto(fileName, useHOG=False):
     """
     Load a supplied photo and add detected facial encoding to the database
     """
@@ -33,7 +33,11 @@ def addPhoto(fileName):
     identity = os.path.splitext(os.path.basename(fileName))[0]
 
     #Get the face encoding
-    locations = haarDetectFaceLocations(image)
+    if (useHOG):
+        locations = hogDetectFaceLocations(image)
+    else:
+        locations = haarDetectFaceLocations(image)
+
     encodings = getFaceEncodings(image, locations)
 
     #Save data to file
@@ -80,7 +84,7 @@ def paintDetectedFaceOnImage(frame, location, name=None, isBGR=False):
     cv2.putText(frame, name, (left + 6, bottom - 6),
         cv2.FONT_HERSHEY_DUPLEX, 1.0, (255, 255, 255), 1)
 
-def runScanPhotoFaceRecognition(fileName):
+def runScanPhotoFaceRecognition(fileName, useHOG=False):
     #Check if image is a jpg
     if (fileName[-4:] != ".jpg"):
         print("\n[!] File extenstion must be .jpg!\n")
@@ -97,7 +101,10 @@ def runScanPhotoFaceRecognition(fileName):
     image = face_recognition.load_image_file(fileName)
 
     #Detect if there are any faces in the frame and get their locations
-    faceLocations = haarDetectFaceLocations(image)
+    if (useHOG):
+        faceLocations = hogDetectFaceLocations(image)
+    else:
+        faceLocations = haarDetectFaceLocations(image)
 
     #Get detected faces encoding from embedding model
     faceEncodings = getFaceEncodings(image, faceLocations)
@@ -121,7 +128,7 @@ def runScanPhotoFaceRecognition(fileName):
     cv2.waitKey(0)
 
 
-def runFaceRecognition():
+def runFaceRecognition(useHOG=False):
     """
     Manages live facial recognition
     """
@@ -148,7 +155,10 @@ def runFaceRecognition():
             break
 
         #Detect if there are any faces in the frame and get their locations
-        faceLocations = haarDetectFaceLocations(frame)
+        if (useHOG):
+            faceLocations = hogDetectFaceLocations(frame)
+        else:
+            faceLocations = haarDetectFaceLocations(frame)
 
         #Get detected faces encoding from embedding model
         faceEncodings = getFaceEncodings(frame, faceLocations)
@@ -193,9 +203,23 @@ def main():
         photoPath = sys.argv[2]
         addPhoto(photoPath)
 
+    elif (argument == "addfacehog"):
+        #If user didnt supply a photo path
+        if (len(sys.argv) < 3):
+            print("\n[!] No photo path!\n")
+            return
+
+        #Otherwise add photo to database
+        photoPath = sys.argv[2]
+        addPhoto(photoPath, True)
+
     elif (argument == "run"):
         print("\n[*] Press Q to quit\n")
         runFaceRecognition()
+
+    elif (argument == "runhog"):
+        print("\n[*] Press Q to quit\n")
+        runFaceRecognition(True)
 
     elif (argument == "scanphoto"):
         #If user didnt supply a photo path
@@ -207,6 +231,16 @@ def main():
         photoPath = sys.argv[2]
         runScanPhotoFaceRecognition(photoPath)
 
+    elif (argument == "scanphotohog"):
+        #If user didnt supply a photo path
+        if (len(sys.argv) < 3):
+            print("\n[!] No photo path!\n")
+            return
+
+        #Otherwise add photo to database
+        photoPath = sys.argv[2]
+        runScanPhotoFaceRecognition(photoPath, True)
+
     elif (argument == "help"):
         print("\nArguments for Live Facial Recognition Software include:\n")
         print("1. python3 main.py addface image_path : adds ", end="")
@@ -214,7 +248,13 @@ def main():
         print("2. python3 main.py run : runs webcam face recognition")
         print("3. python3 main.py help : prints this menu")
         print("4. python3 main.py scanphoto image_path : ", end="")
-        print("scans a photo for face recognition\n")
+        print("scans a photo for face recognition")
+        print("5. python3 main.py addfacehog image_path : adds ", end="")
+        print("a face encoding to the database using HOG face detection")
+        print("6. python3 main.py runhog : runs webcam face ", end="")
+        print("recognition using HOG face detection")
+        print("7. python3 main.py scanphotohog image_path : ", end="")
+        print("scans a photo for face recognition using HOG face detection\n")
 
     else:
         print("\n[!] Unknown argument!\n")
