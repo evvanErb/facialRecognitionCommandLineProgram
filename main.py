@@ -78,6 +78,46 @@ def paintDetectedFaceOnImage(frame, location, name=None):
     cv2.putText(frame, name, (left + 6, bottom - 6),
         cv2.FONT_HERSHEY_DUPLEX, 1.0, (255, 255, 255), 1)
 
+def runScanPhotoFaceRecognition(fileName):
+    #Check if image is a jpg
+    if (fileName[-4:] != ".jpg"):
+        print("\n[!] File extenstion must be .jpg!\n")
+        return
+
+    elif (not os.path.isfile(fileName)):
+        print("\n[!] File does not exist!\n")
+        return
+
+    #Setup database
+    knownFaceEncodings, knownFaceNames = setupDatabase()
+
+    #Load image
+    image = face_recognition.load_image_file(fileName)
+
+    #Detect if there are any faces in the frame and get their locations
+    faceLocations = detectFaceLocations(image)
+
+    #Get detected faces encoding from embedding model
+    faceEncodings = getFaceEncodings(image, faceLocations)
+
+    #Loop through each face in the frame and see if there's a match
+    for location, faceEncoding in zip(faceLocations, faceEncodings):
+
+        name = recognizeFace(faceEncoding, knownFaceEncodings,
+            knownFaceNames)
+
+        #Put recognition info on the image
+        paintDetectedFaceOnImage(image, location, name)
+
+    #Convert image from BGR to RGB and display the resulting image
+    image = image[:, :, ::-1]
+    cv2.imshow(fileName, image)
+
+    print("\n[*] Press Q to quit\n")
+
+    #Hit 'q' on the keyboard to quit!
+    cv2.waitKey(0)
+
 
 def runFaceRecognition():
     """
@@ -152,14 +192,27 @@ def main():
         addPhoto(photoPath)
 
     elif (argument == "run"):
+        print("\n[*] Press Q to quit\n")
         runFaceRecognition()
+
+    elif (argument == "scanphoto"):
+        #If user didnt supply a photo path
+        if (len(sys.argv) < 3):
+            print("\n[!] No photo path!\n")
+            return
+
+        #Otherwise add photo to database
+        photoPath = sys.argv[2]
+        runScanPhotoFaceRecognition(photoPath)
 
     elif (argument == "help"):
         print("\nArguments for Live Facial Recognition Software include:\n")
         print("1. python3 main.py addface image_path : adds ", end="")
         print("a face encoding to the database")
         print("2. python3 main.py run : runs webcam face recognition")
-        print("3. python3 main.py help : prints this menu\n")
+        print("3. python3 main.py help : prints this menu")
+        print("4. python3 main.py scanphoto image_path : ", end="")
+        print("scans a photo for face recognition\n")
 
     else:
         print("\n[!] Unknown argument!\n")
