@@ -17,9 +17,9 @@ def convertToFrLocationFormat(faceLocations):
 
     return toReturn
 
-def detectFaceLocations(image):
+def haarDetectFaceLocations(image):
     """
-    Take a raw image and run both the face detection and face embedding model on it
+    Take a raw image and run the haar cascade face detection on it
     """
 
     # Create the haar cascade
@@ -29,7 +29,7 @@ def detectFaceLocations(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Detect faces in the image with openCV Haar Cascade
-    faces = faceCascade.detectMultiScale(
+    faceLocations = faceCascade.detectMultiScale(
         gray,
         scaleFactor=1.2,
         minNeighbors=5,
@@ -38,6 +38,20 @@ def detectFaceLocations(image):
     )
 
     #convert face locations into face_recognition format
-    faces = convertToFrLocationFormat(faces)
+    faceLocations = convertToFrLocationFormat(faceLocations)
 
-    return faces
+    return faceLocations
+
+def hogDetectFaceLocations(image, isBGR=False):
+    """
+    Take a raw image and run the hog face detection on it
+    """
+
+    # Convert from BGR to RGB if needed
+    if (isBGR):
+        image = image[:, :, ::-1]
+
+	# run the face detection model to find face locations
+    faceLocations = face_recognition.face_locations(image)
+
+    return faceLocations

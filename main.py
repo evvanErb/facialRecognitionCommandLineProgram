@@ -7,7 +7,7 @@ import glob
 import os
 import sys
 
-from haarFacialDetection import detectFaceLocations
+from facialDetection import haarDetectFaceLocations
 from facialRecognition import getFaceEncodings, recognizeFace
 
 DATABASE_PATH = 'facialDatabase/'
@@ -33,7 +33,7 @@ def addPhoto(fileName):
     identity = os.path.splitext(os.path.basename(fileName))[0]
 
     #Get the face encoding
-    locations = detectFaceLocations(image)
+    locations = haarDetectFaceLocations(image)
     encodings = getFaceEncodings(image, locations)
 
     #Save data to file
@@ -56,7 +56,7 @@ def setupDatabase():
 
     return list(database.values()), list(database.keys())
 
-def paintDetectedFaceOnImage(frame, location, name=None):
+def paintDetectedFaceOnImage(frame, location, name=None, isBGR=False):
     """
     Paint a rectangle around the face and write the name
     """
@@ -66,6 +66,8 @@ def paintDetectedFaceOnImage(frame, location, name=None):
     if name is None:
         name = 'Unknown'
         color = (0, 0, 255)  #Red for unrecognized face
+        if (isBGR):
+            color = (255, 0, 0)  #Red for unrecognized face
     else:
         color = (0, 128, 0)  #Dark green for recognized face
 
@@ -95,7 +97,7 @@ def runScanPhotoFaceRecognition(fileName):
     image = face_recognition.load_image_file(fileName)
 
     #Detect if there are any faces in the frame and get their locations
-    faceLocations = detectFaceLocations(image)
+    faceLocations = haarDetectFaceLocations(image)
 
     #Get detected faces encoding from embedding model
     faceEncodings = getFaceEncodings(image, faceLocations)
@@ -107,7 +109,7 @@ def runScanPhotoFaceRecognition(fileName):
             knownFaceNames)
 
         #Put recognition info on the image
-        paintDetectedFaceOnImage(image, location, name)
+        paintDetectedFaceOnImage(image, location, name, True)
 
     #Convert image from BGR to RGB and display the resulting image
     image = image[:, :, ::-1]
@@ -146,7 +148,7 @@ def runFaceRecognition():
             break
 
         #Detect if there are any faces in the frame and get their locations
-        faceLocations = detectFaceLocations(frame)
+        faceLocations = haarDetectFaceLocations(frame)
 
         #Get detected faces encoding from embedding model
         faceEncodings = getFaceEncodings(frame, faceLocations)

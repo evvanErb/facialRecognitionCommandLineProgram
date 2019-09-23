@@ -1,7 +1,7 @@
 # facialRecognitionTerminalProgram
 Command Line Facial Recognition Program
 
-v1.1
+v1.2
 
 This program uses the following librares: openCV, numpy, dlib, face_recognition
 
@@ -26,5 +26,4 @@ one face in the image or else the facial recognition will not work properly
 
 TO DO:
 - Bug Check
-- Fix photo recognition so when BGR is flipped to RGB red boxes don't turn blue
 - Allow multiple photos to be uploaded at once
