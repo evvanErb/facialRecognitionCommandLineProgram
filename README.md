@@ -3,7 +3,7 @@ Command Line Facial Recognition Program
 
 v1.2
 
-This program uses the following librares: openCV, numpy, dlib, face_recognition
+This program uses the following libraries: openCV, numpy, dlib, face_recognition
 
 face_recognition is a facial recognition wrapper for dlib which can be found at:
 https://github.com/ageitgey/face_recognition
