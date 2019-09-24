@@ -1,7 +1,7 @@
 # facialRecognitionTerminalProgram
 Command Line Facial Recognition Program
 
-v1.2
+v1.3
 
 This program uses the following libraries: openCV, numpy, dlib, face_recognition
 
