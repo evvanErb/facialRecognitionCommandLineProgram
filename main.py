@@ -8,7 +8,7 @@ import os
 import sys
 
 from facialDetection import haarDetectFaceLocations, hogDetectFaceLocations
-from facialRecognition import getFaceEncodings, detectAndRecognizeFacesInImage
+from facialRecognition import detectAndRecognizeFacesInImage
 
 DATABASE_PATH = 'facialDatabase/'
 CAMERA_DEVICE_ID = 0
@@ -32,13 +32,14 @@ def addPhoto(fileName, useHOG=False):
     #Use the name in the filename as the identity key
     identity = os.path.splitext(os.path.basename(fileName))[0]
 
-    #Get the face encoding
+    #Get the face location
     if (useHOG):
         locations = hogDetectFaceLocations(image)
     else:
         locations = haarDetectFaceLocations(image)
 
-    encodings = getFaceEncodings(image, locations)
+    #Get the face encoding
+    encodings = face_recognition.face_encodings(image, locations)
 
     #Save data to file
     np.savetxt((DATABASE_PATH + identity + ".txt"), encodings[0])

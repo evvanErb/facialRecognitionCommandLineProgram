@@ -32,14 +32,6 @@ def paintDetectedFaceOnImage(frame, location, name=None, isBGR=False):
     cv2.putText(frame, name, (left + 6, bottom - 6),
         cv2.FONT_HERSHEY_DUPLEX, 1.0, (255, 255, 255), 1)
 
-def getFaceEncodings(image, faces):
-    """
-    Run the embedding model to get face embeddings for the supplied locations
-    """
-    faceEncodings = face_recognition.face_encodings(image, faces)
-
-    return faceEncodings
-
 def recognizeFace(faceEncoding, knownFaceEncodings, knownFaceNames):
     """
     Compare face encoding to all known face encodings and find the
@@ -72,7 +64,7 @@ def detectAndRecognizeFacesInImage(image,
         faceLocations = haarDetectFaceLocations(image)
 
     #Get detected faces encoding from embedding model
-    faceEncodings = getFaceEncodings(image, faceLocations)
+    faceEncodings = face_recognition.face_encodings(image, faceLocations)
 
     #Loop through each face in the frame and see if there's a match
     for location, faceEncoding in zip(faceLocations, faceEncodings):
