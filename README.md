@@ -1,4 +1,4 @@
-# facialRecognitionTerminalProgram
+# facialRecognitionCommandLineProgram
 Command Line Facial Recognition Program
 
 v1.3
