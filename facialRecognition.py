@@ -63,7 +63,7 @@ def recognizeFace(faceEncoding, knownFaceEncodings, knownFaceNames):
 def detectAndRecognizeFacesInImage(image,
     knownFaceEncodings, knownFaceNames, useHOG=False, isBGR=False):
     """
-    Detects and recognizies faces in image then pains recognition info on image
+    Detects and recognizies faces in image then paints recognition info on image
     """
     #Detect if there are any faces in the frame and get their locations
     if (useHOG):
