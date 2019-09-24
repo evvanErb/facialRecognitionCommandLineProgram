@@ -41,6 +41,15 @@ def addPhoto(fileName, useHOG=False):
     #Get the face encoding
     encodings = face_recognition.face_encodings(image, locations)
 
+    #check if exactly one face is in the photo
+    if (len(encodings) == 0):
+        print("[!] No face detected in the provided photo")
+        return
+        
+    elif (len(encodings) > 1):
+        print("[!] More than one face detected in the provided photo")
+        return
+
     #Save data to file
     np.savetxt((DATABASE_PATH + identity + ".txt"), encodings[0])
 
