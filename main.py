@@ -8,7 +8,7 @@ import os
 import sys
 
 from facialDetection import haarDetectFaceLocations, hogDetectFaceLocations
-from facialRecognition import getFaceEncodings, recognizeFace
+from facialRecognition import getFaceEncodings, detectAndRecognizeFacesInImage
 
 DATABASE_PATH = 'facialDatabase/'
 CAMERA_DEVICE_ID = 0
@@ -60,53 +60,6 @@ def setupDatabase():
 
     return list(database.values()), list(database.keys())
 
-def detectAndRecognizeFacesInImage(image,
-    knownFaceEncodings, knownFaceNames, useHOG=False, isBGR=False):
-    """
-    Detects and recognizies faces in image then pains recognition info on image
-    """
-    #Detect if there are any faces in the frame and get their locations
-    if (useHOG):
-        faceLocations = hogDetectFaceLocations(image)
-    else:
-        faceLocations = haarDetectFaceLocations(image)
-
-    #Get detected faces encoding from embedding model
-    faceEncodings = getFaceEncodings(image, faceLocations)
-
-    #Loop through each face in the frame and see if there's a match
-    for location, faceEncoding in zip(faceLocations, faceEncodings):
-
-        name = recognizeFace(faceEncoding, knownFaceEncodings,
-            knownFaceNames)
-
-        #Put recognition info on the image
-        paintDetectedFaceOnImage(image, location, name, isBGR)
-
-def paintDetectedFaceOnImage(frame, location, name=None, isBGR=False):
-    """
-    Paint a rectangle around the face and write the name
-    """
-    #Unpack the coordinates from the location tuple
-    top, right, bottom, left = location
-
-    if name is None:
-        name = 'Unknown'
-        color = (0, 0, 255)  #Red for unrecognized face
-        if (isBGR):
-            color = (255, 0, 0)  #Red for unrecognized face
-    else:
-        color = (0, 128, 0)  #Dark green for recognized face
-
-    #Draw a box around the face
-    cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
-
-    #Draw a label with a name below the face
-    cv2.rectangle(frame, (left, bottom - 35), (right, bottom),
-        color, cv2.FILLED)
-    cv2.putText(frame, name, (left + 6, bottom - 6),
-        cv2.FONT_HERSHEY_DUPLEX, 1.0, (255, 255, 255), 1)
-
 def runScanPhotoFaceRecognition(fileName, useHOG=False):
     """
     Manages facial recogntion on photos
@@ -138,7 +91,6 @@ def runScanPhotoFaceRecognition(fileName, useHOG=False):
 
     #Hit 'q' on the keyboard to quit!
     cv2.waitKey(0)
-
 
 def runFaceRecognition(useHOG=False):
     """
@@ -180,7 +132,6 @@ def runFaceRecognition(useHOG=False):
     #Release handle to the webcam
     video_capture.release()
     cv2.destroyAllWindows()
-
 
 def main():
     #Check if there is an argument
