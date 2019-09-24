@@ -4,7 +4,7 @@ import os
 def install(package):
     os.system("pip3 install " + package)
 
-#installs required libraries
+#Installs required libraries
 def main():
     packages = ["numpy", "opencv-python", "dlib", "face_recognition"]
 

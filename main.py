@@ -60,6 +60,29 @@ def setupDatabase():
 
     return list(database.values()), list(database.keys())
 
+def detectAndRecognizeFacesInImage(image,
+    knownFaceEncodings, knownFaceNames, useHOG=False, isBGR=False):
+    """
+    Detects and recognizies faces in image then pains recognition info on image
+    """
+    #Detect if there are any faces in the frame and get their locations
+    if (useHOG):
+        faceLocations = hogDetectFaceLocations(image)
+    else:
+        faceLocations = haarDetectFaceLocations(image)
+
+    #Get detected faces encoding from embedding model
+    faceEncodings = getFaceEncodings(image, faceLocations)
+
+    #Loop through each face in the frame and see if there's a match
+    for location, faceEncoding in zip(faceLocations, faceEncodings):
+
+        name = recognizeFace(faceEncoding, knownFaceEncodings,
+            knownFaceNames)
+
+        #Put recognition info on the image
+        paintDetectedFaceOnImage(image, location, name, isBGR)
+
 def paintDetectedFaceOnImage(frame, location, name=None, isBGR=False):
     """
     Paint a rectangle around the face and write the name
@@ -85,6 +108,9 @@ def paintDetectedFaceOnImage(frame, location, name=None, isBGR=False):
         cv2.FONT_HERSHEY_DUPLEX, 1.0, (255, 255, 255), 1)
 
 def runScanPhotoFaceRecognition(fileName, useHOG=False):
+    """
+    Manages facial recogntion on photos
+    """
     #Check if image is a jpg
     if (fileName[-4:] != ".jpg"):
         print("\n[!] File extenstion must be .jpg!\n")
@@ -100,23 +126,9 @@ def runScanPhotoFaceRecognition(fileName, useHOG=False):
     #Load image
     image = face_recognition.load_image_file(fileName)
 
-    #Detect if there are any faces in the frame and get their locations
-    if (useHOG):
-        faceLocations = hogDetectFaceLocations(image)
-    else:
-        faceLocations = haarDetectFaceLocations(image)
-
-    #Get detected faces encoding from embedding model
-    faceEncodings = getFaceEncodings(image, faceLocations)
-
-    #Loop through each face in the frame and see if there's a match
-    for location, faceEncoding in zip(faceLocations, faceEncodings):
-
-        name = recognizeFace(faceEncoding, knownFaceEncodings,
-            knownFaceNames)
-
-        #Put recognition info on the image
-        paintDetectedFaceOnImage(image, location, name, True)
+    #Run facial detection and recognition on image
+    detectAndRecognizeFacesInImage(image,
+        knownFaceEncodings, knownFaceNames, useHOG, True)
 
     #Convert image from BGR to RGB and display the resulting image
     image = image[:, :, ::-1]
@@ -154,23 +166,9 @@ def runFaceRecognition(useHOG=False):
             print("[!] Error reading frame from camera. Video capture stopped.")
             break
 
-        #Detect if there are any faces in the frame and get their locations
-        if (useHOG):
-            faceLocations = hogDetectFaceLocations(frame)
-        else:
-            faceLocations = haarDetectFaceLocations(frame)
-
-        #Get detected faces encoding from embedding model
-        faceEncodings = getFaceEncodings(frame, faceLocations)
-
-        #Loop through each face in the frame and see if there's a match
-        for location, faceEncoding in zip(faceLocations, faceEncodings):
-
-            name = recognizeFace(faceEncoding, knownFaceEncodings,
-                knownFaceNames)
-
-            #Put recognition info on the image
-            paintDetectedFaceOnImage(frame, location, name)
+        #Run facial detection and recognition on image
+        detectAndRecognizeFacesInImage(frame,
+            knownFaceEncodings, knownFaceNames, useHOG)
 
         #Display the resulting image
         cv2.imshow('Video', frame)

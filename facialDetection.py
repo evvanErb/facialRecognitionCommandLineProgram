@@ -23,13 +23,13 @@ def haarDetectFaceLocations(image):
     Take a raw image and run the haar cascade face detection on it
     """
 
-    # Create the haar cascade
+    #Create the haar cascade
     faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 
-    # Our operations on the frame come here
+    #Our operations on the frame come here
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # Detect faces in the image with openCV Haar Cascade
+    #Detect faces in the image with openCV Haar Cascade
     faceLocations = faceCascade.detectMultiScale(
         gray,
         scaleFactor=1.2,
@@ -38,7 +38,7 @@ def haarDetectFaceLocations(image):
         #flags = cv2.CV_HAAR_SCALE_IMAGE
     )
 
-    #convert face locations into face_recognition format
+    #Convert face locations into face_recognition format
     faceLocations = convertToFrLocationFormat(faceLocations)
 
     return faceLocations
@@ -48,11 +48,11 @@ def hogDetectFaceLocations(image, isBGR=False):
     Take a raw image and run the hog face detection on it
     """
 
-    # Convert from BGR to RGB if needed
+    #Convert from BGR to RGB if needed
     if (isBGR):
         image = image[:, :, ::-1]
 
-	# run the face detection model to find face locations
+	#Run the face detection model to find face locations
     faceLocations = face_recognition.face_locations(image)
 
     return faceLocations
