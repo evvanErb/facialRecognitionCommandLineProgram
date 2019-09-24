@@ -45,7 +45,7 @@ def addPhoto(fileName, useHOG=False):
     if (len(encodings) == 0):
         print("[!] No face detected in the provided photo")
         return
-        
+
     elif (len(encodings) > 1):
         print("[!] More than one face detected in the provided photo")
         return
