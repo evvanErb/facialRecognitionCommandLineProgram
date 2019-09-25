@@ -13,10 +13,11 @@ from facialRecognition import detectAndRecognizeFacesInImage
 DATABASE_PATH = 'facialDatabase/'
 CAMERA_DEVICE_ID = 0
 
-def addPhoto(fileName, useHOG=False):
+def addPhoto(fileName, personName, useHOG=False):
     """
     Load a supplied photo and add detected facial encoding to the database
     """
+
     #Check if image is a jpg
     if (fileName[-4:] != ".jpg"):
         print("\n[!] File extenstion must be .jpg!\n")
@@ -50,8 +51,21 @@ def addPhoto(fileName, useHOG=False):
         print("[!] More than one face detected in the provided photo")
         return
 
+    #Set path to respective dataset
+    directoryToAddTo = DATABASE_PATH + personName
+
+    #Look for directory
+    exists = False
+    for subdir, dirs, files in os.walk(DATABASE_PATH):
+        if (subdir == directoryToAddTo):
+            exists = True
+
+    #If directory doesnt exist make it
+    if (not exists):
+        os.mkdir(directoryToAddTo)
+
     #Save data to file
-    np.savetxt((DATABASE_PATH + identity + ".txt"), encodings[0])
+    np.savetxt((directoryToAddTo + "/" + identity + ".txt"), encodings[0])
 
 def setupDatabase():
     """
@@ -59,16 +73,24 @@ def setupDatabase():
     """
     database = {}
 
-    for filename in glob.glob(os.path.join(DATABASE_PATH, '*.txt')):
-        #Use the name in the filename as the identity key
-        identity = os.path.splitext(os.path.basename(filename))[0]
+    #iterate over subdirs in DATABASE_PATH
+    for subdir, dirs, files in os.walk(DATABASE_PATH):
+        #Use the name of the sub dir as the identity key
+        identity = subdir[len(DATABASE_PATH) : ]
+        #initialize this persons data set array to store all their encodings
+        encodings = []
 
-        #Get the face encoding and link it to the identity
-        encoding = np.loadtxt(filename)
+        #iterate over files in the specific persons data set
+        for file in files:
+            #Get the face encoding and link it to the identity
+            encoding = np.loadtxt(subdir + "/" + file)
+            #add this encoding to the persons array of encodings
+            encodings.append(encoding)
 
-        database[identity] = encoding
+        #add the person's encodings to the database
+        database[identity] = encodings
 
-    return list(database.values()), list(database.keys())
+    return database
 
 def runScanPhotoFaceRecognition(fileName, useHOG=False):
     """
@@ -84,14 +106,14 @@ def runScanPhotoFaceRecognition(fileName, useHOG=False):
         return
 
     #Setup database
-    knownFaceEncodings, knownFaceNames = setupDatabase()
+    database = setupDatabase()
 
     #Load image
     image = face_recognition.load_image_file(fileName)
 
     #Run facial detection and recognition on image
     detectAndRecognizeFacesInImage(image,
-        knownFaceEncodings, knownFaceNames, useHOG, True)
+        database, useHOG, True)
 
     #Convert image from BGR to RGB and display the resulting image
     image = image[:, :, ::-1]
@@ -110,17 +132,17 @@ def runFaceRecognition(useHOG=False):
     video_capture = cv2.VideoCapture(CAMERA_DEVICE_ID)
 
     #Setup database
-    knownFaceEncodings, knownFaceNames = setupDatabase()
+    database = setupDatabase()
 
     skipFrame = 0
 
     while video_capture.isOpened():
-        #Skip every other frame to increase frame rate
-        if (skipFrame == 1):
-            skipFrame = 0
+        #Skip every 2 frames to increase frame rate
+        if (skipFrame < 2):
+            skipFrame += 1
             continue
         else:
-            skipFrame = 1
+            skipFrame = 0
 
         #Read frame from camera and check that it went ok
         ok, frame = video_capture.read()
@@ -130,7 +152,7 @@ def runFaceRecognition(useHOG=False):
 
         #Run facial detection and recognition on image
         detectAndRecognizeFacesInImage(frame,
-            knownFaceEncodings, knownFaceNames, useHOG)
+            database, useHOG)
 
         #Display the resulting image
         cv2.imshow('Video', frame)
@@ -154,23 +176,25 @@ def main():
 
     if (argument == "addface"):
         #If user didnt supply a photo path
-        if (len(sys.argv) < 3):
-            print("\n[!] No photo path!\n")
+        if (len(sys.argv) < 4):
+            print("\n[!] Not enough arguments!\n")
             return
 
         #Otherwise add photo to database
         photoPath = sys.argv[2]
-        addPhoto(photoPath)
+        name = sys.argv[3]
+        addPhoto(photoPath, name)
 
     elif (argument == "addfacehog"):
         #If user didnt supply a photo path
-        if (len(sys.argv) < 3):
-            print("\n[!] No photo path!\n")
+        if (len(sys.argv) < 4):
+            print("\n[!] Not enough arguments!\n")
             return
 
         #Otherwise add photo to database
         photoPath = sys.argv[2]
-        addPhoto(photoPath, True)
+        name = sys.argv[3]
+        addPhoto(photoPath, name, True)
 
     elif (argument == "run"):
         print("\n[*] Press Q to quit\n")

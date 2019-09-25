@@ -32,28 +32,28 @@ def paintDetectedFaceOnImage(frame, location, name=None, isBGR=False):
     cv2.putText(frame, name, (left + 6, bottom - 6),
         cv2.FONT_HERSHEY_DUPLEX, 1.0, (255, 255, 255), 1)
 
-def recognizeFace(faceEncoding, knownFaceEncodings, knownFaceNames):
+def recognizeFace(faceEncoding, knownFaceEncodings):
     """
-    Compare face encoding to all known face encodings and find the
-    closest match and return their name
+    Compare face encoding to all known face encodings for this person and
+    find the close matches and return their count
     """
     #Get the distances from this encoding to
-    #those of all reference images
+    #those of all reference images for this person
     distances = face_recognition.face_distance(knownFaceEncodings,
         faceEncoding)
 
-    #Select the closest match (smallest distance)
-    #if it's below the threshold value
-    if np.any(distances <= MAX_DISTANCE):
-        bestMatchIdx = np.argmin(distances)
-        name = knownFaceNames[bestMatchIdx]
-    else:
-        name = None
+    possibleMathcesCount = 0
 
-    return name
+    #Look at all matches that have a distance below the MAX_DISTANCE
+    #if it's below the threshold value then add +1 to this persons match count
+    for distance in distances:
+        if (distance <= MAX_DISTANCE):
+            possibleMathcesCount += 1
+
+    return possibleMathcesCount
 
 def detectAndRecognizeFacesInImage(image,
-    knownFaceEncodings, knownFaceNames, useHOG=False, isBGR=False):
+    database, useHOG=False, isBGR=False):
     """
     Detects and recognizies faces in image then paints recognition info on image
     """
@@ -69,8 +69,23 @@ def detectAndRecognizeFacesInImage(image,
     #Loop through each face in the frame and see if there's a match
     for location, faceEncoding in zip(faceLocations, faceEncodings):
 
-        name = recognizeFace(faceEncoding, knownFaceEncodings,
-            knownFaceNames)
+        matches = {}
+
+        #Iterate over all people in the database face encodings and get
+        #how many photos per known person matched the unknown face
+        for person in database:
+
+            personMatchCount = recognizeFace(faceEncoding, database[person])
+
+            matches[person] = personMatchCount
+
+        #Iterate over all matches and see who has highest count
+        bestMatch = None
+        bestMatchCount = 0
+        for match in matches:
+            if ((matches[match] > 0) and (matches[match] > bestMatchCount)):
+                bestMatch = match
+                bestMatchCount = matches[match]
 
         #Put recognition info on the image
-        paintDetectedFaceOnImage(image, location, name, isBGR)
+        paintDetectedFaceOnImage(image, location, bestMatch, isBGR)

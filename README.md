@@ -15,11 +15,13 @@ required libraries
 
 Commands for this program are:
 
-1. python3 main.py addface image_path : adds a face encoding to the database
+1. python3 main.py addface image_path personName : adds a face encoding to
+ the database
 2. python3 main.py run : runs webcam face recognition
 3. python3 main.py help : prints this menu
 4. python3 main.py scanphoto image_path : scans a photo for face recognition
-5. python3 main.py addfacehog image_path : adds a face encoding to the database
+5. python3 main.py addfacehog image_path personName: adds a face encoding to
+ the database
  using HOG face detection
 6. python3 main.py runhog : runs webcam face recognition using HOG face
  detection
