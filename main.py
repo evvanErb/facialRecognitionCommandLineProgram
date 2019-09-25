@@ -226,14 +226,14 @@ def main():
 
     elif (argument == "help"):
         print("\nArguments for Live Facial Recognition Software include:\n")
-        print("1. python3 main.py addface image_path : adds ", end="")
-        print("a face encoding to the database")
+        print("1. python3 main.py addface image_path person_name:", end="")
+        print(" adds a face encoding to the database")
         print("2. python3 main.py run : runs webcam face recognition")
         print("3. python3 main.py help : prints this menu")
         print("4. python3 main.py scanphoto image_path : ", end="")
         print("scans a photo for face recognition")
-        print("5. python3 main.py addfacehog image_path : adds ", end="")
-        print("a face encoding to the database using HOG face detection")
+        print("5. python3 main.py addfacehog image_path person_name:", end="")
+        print(" adds a face encoding to the database using HOG face detection")
         print("6. python3 main.py runhog : runs webcam face ", end="")
         print("recognition using HOG face detection")
         print("7. python3 main.py scanphotohog image_path : ", end="")
