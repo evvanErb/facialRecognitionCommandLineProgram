@@ -24,6 +24,10 @@ def addPhoto(fileName, personName, useHOG=False):
         print("\n[!] File does not exist!\n")
         return
 
+    elif (("/" in personName) or ("." in personName)):
+        print("\n[!] Provided name contains an illegal argument\n")
+        return
+
     #Load image
     image = face_recognition.load_image_file(fileName)
 
