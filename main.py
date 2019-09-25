@@ -3,38 +3,12 @@
 import face_recognition
 import cv2
 import numpy as np
-import glob
 import os
 import sys
 
-from facialDetection import *
-from facialRecognition import *
-
-DATABASE_PATH = 'facialDatabase/'
-CAMERA_DEVICE_ID = 0
-
-def detectAndRecognizeFacesInImage(image,
-    database, useHOG=False, isBGR=False):
-    """
-    Detects and recognizies faces in image then paints recognition info on image
-    """
-    #Detect if there are any faces in the frame and get their locations
-    if (useHOG):
-        faceLocations = hogDetectFaceLocations(image)
-    else:
-        faceLocations = haarDetectFaceLocations(image)
-
-    #Get detected faces encoding from embedding model
-    faceEncodings = face_recognition.face_encodings(image, faceLocations)
-
-    #Loop through each face in the frame and see if there's a match
-    for location, faceEncoding in zip(faceLocations, faceEncodings):
-
-        #See who from database matches best
-        bestMatch = recognizeFace(database, faceEncoding)
-
-        #Put recognition info on the image
-        paintDetectedFaceOnImage(image, location, bestMatch, isBGR)
+from settings import *
+from facialDetection import haarDetectFaceLocations, hogDetectFaceLocations
+from utilityFunctions import setupDatabase, detectAndRecognizeFacesInImage
 
 def addPhoto(fileName, personName, useHOG=False):
     """
@@ -89,31 +63,6 @@ def addPhoto(fileName, personName, useHOG=False):
 
     #Save data to file
     np.savetxt((directoryToAddTo + "/" + identity + ".txt"), encodings[0])
-
-def setupDatabase():
-    """
-    Load reference images and create a database of their face encodings
-    """
-    database = {}
-
-    #iterate over subdirs in DATABASE_PATH
-    for subdir, dirs, files in os.walk(DATABASE_PATH):
-        #Use the name of the sub dir as the identity key
-        identity = subdir[len(DATABASE_PATH) : ]
-        #initialize this persons data set array to store all their encodings
-        encodings = []
-
-        #iterate over files in the specific persons data set
-        for file in files:
-            #Get the face encoding and link it to the identity
-            encoding = np.loadtxt(subdir + "/" + file)
-            #add this encoding to the persons array of encodings
-            encodings.append(encoding)
-
-        #add the person's encodings to the database
-        database[identity] = encodings
-
-    return database
 
 def runScanPhotoFaceRecognition(fileName, useHOG=False):
     """

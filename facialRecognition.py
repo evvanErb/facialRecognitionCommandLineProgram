@@ -4,33 +4,7 @@ import face_recognition
 import numpy as np
 import cv2
 
-from facialDetection import haarDetectFaceLocations, hogDetectFaceLocations
-
-MAX_DISTANCE = 0.6
-
-def paintDetectedFaceOnImage(frame, location, name=None, isBGR=False):
-    """
-    Paint a rectangle around the face and write the name
-    """
-    #Unpack the coordinates from the location tuple
-    top, right, bottom, left = location
-
-    if name is None:
-        name = 'Unknown'
-        color = (0, 0, 255)  #Red for unrecognized face
-        if (isBGR):
-            color = (255, 0, 0)  #Red for unrecognized face
-    else:
-        color = (0, 128, 0)  #Dark green for recognized face
-
-    #Draw a box around the face
-    cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
-
-    #Draw a label with a name below the face
-    cv2.rectangle(frame, (left, bottom - 35), (right, bottom),
-        color, cv2.FILLED)
-    cv2.putText(frame, name, (left + 6, bottom - 6),
-        cv2.FONT_HERSHEY_DUPLEX, 1.0, (255, 255, 255), 1)
+from settings import *
 
 def numberOfMatches(faceEncoding, knownFaceEncodings):
     """
