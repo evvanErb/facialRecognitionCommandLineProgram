@@ -72,26 +72,3 @@ def recognizeFace(database, faceEncoding):
             bestMatchCount = matches[match]
 
     return bestMatch
-
-def detectAndRecognizeFacesInImage(image,
-    database, useHOG=False, isBGR=False):
-    """
-    Detects and recognizies faces in image then paints recognition info on image
-    """
-    #Detect if there are any faces in the frame and get their locations
-    if (useHOG):
-        faceLocations = hogDetectFaceLocations(image)
-    else:
-        faceLocations = haarDetectFaceLocations(image)
-
-    #Get detected faces encoding from embedding model
-    faceEncodings = face_recognition.face_encodings(image, faceLocations)
-
-    #Loop through each face in the frame and see if there's a match
-    for location, faceEncoding in zip(faceLocations, faceEncodings):
-
-        #See who from database matches best
-        bestMatch = recognizeFace(database, faceEncoding)
-
-        #Put recognition info on the image
-        paintDetectedFaceOnImage(image, location, bestMatch, isBGR)
