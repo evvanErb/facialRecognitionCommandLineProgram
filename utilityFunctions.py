@@ -47,10 +47,14 @@ def setupDatabase():
 
         #iterate over files in the specific persons data set
         for file in files:
-            #Get the face encoding and link it to the identity
-            encoding = np.loadtxt(subdir + "/" + file)
-            #add this encoding to the persons array of encodings
-            encodings.append(encoding)
+            #only use if its the desired file type
+            try:
+                #Get the face encoding and link it to the identity
+                encoding = np.loadtxt(subdir + "/" + file)
+                #add this encoding to the persons array of encodings
+                encodings.append(encoding)
+            except:
+                print("\n[*] Warning: Unreadable File in Database.\n")
 
         #add the person's encodings to the database
         database[identity] = encodings

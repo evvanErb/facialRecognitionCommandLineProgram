@@ -48,11 +48,11 @@ def addPhoto(fileName, personName):
 
     #check if exactly one face is in the photo
     if ((len(encodingsHaar) == 0) or (len(encodingsHog) == 0)):
-        print("[!] No face detected in the provided photo")
+        print("\n[!] No face detected in the provided photo\n")
         return
 
     elif ((len(encodingsHaar) > 1) or (len(encodingsHog) > 1)):
-        print("[!] More than one face detected in the provided photo")
+        print("\n[!] More than one face detected in the provided photo\n")
         return
 
     #Set path to respective dataset
@@ -131,7 +131,8 @@ def runFaceRecognition(useHOG=False):
         #Read frame from camera and check that it went ok
         ok, frame = video_capture.read()
         if not ok:
-            print("[!] Error reading frame from camera. Video capture stopped.")
+            print("\n[!] Error reading frame from camera. ", end="")
+            print("Video capture stopped.\n")
             break
 
         #Run facial detection and recognition on image
