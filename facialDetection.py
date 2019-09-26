@@ -3,6 +3,8 @@
 import cv2
 import face_recognition
 
+from settings import *
+
 def convertToFrLocationFormat(faceLocations):
     """
     converts face locations into format for face_recognition
@@ -32,9 +34,9 @@ def haarDetectFaceLocations(image):
     #Detect faces in the image with openCV Haar Cascade
     faceLocations = faceCascade.detectMultiScale(
         gray,
-        scaleFactor=1.2,
-        minNeighbors=5,
-        minSize=(30, 30)
+        scaleFactor = HAAR_SCALE_FACTOR,
+        minNeighbors = 5,
+        minSize = (30, 30)
         #flags = cv2.CV_HAAR_SCALE_IMAGE
     )
 

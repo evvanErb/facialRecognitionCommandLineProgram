@@ -10,7 +10,7 @@ from settings import *
 from facialDetection import haarDetectFaceLocations, hogDetectFaceLocations
 from utilityFunctions import setupDatabase, detectAndRecognizeFacesInImage
 
-def addPhoto(fileName, personName, useHOG=False):
+def addPhoto(fileName, personName):
     """
     Load a supplied photo and add detected facial encoding to the database
     """
@@ -38,20 +38,20 @@ def addPhoto(fileName, personName, useHOG=False):
     identity = os.path.splitext(os.path.basename(fileName))[0]
 
     #Get the face location
-    if (useHOG):
-        locations = hogDetectFaceLocations(image)
-    else:
-        locations = haarDetectFaceLocations(image)
+    locationsHog = hogDetectFaceLocations(image)
+
+    locationsHaar = haarDetectFaceLocations(image)
 
     #Get the face encoding
-    encodings = face_recognition.face_encodings(image, locations)
+    encodingsHaar = face_recognition.face_encodings(image, locationsHaar)
+    encodingsHog = face_recognition.face_encodings(image, locationsHog)
 
     #check if exactly one face is in the photo
-    if (len(encodings) == 0):
+    if ((len(encodingsHaar) == 0) or (len(encodingsHog) == 0)):
         print("[!] No face detected in the provided photo")
         return
 
-    elif (len(encodings) > 1):
+    elif ((len(encodingsHaar) > 1) or (len(encodingsHog) > 1)):
         print("[!] More than one face detected in the provided photo")
         return
 
@@ -69,7 +69,10 @@ def addPhoto(fileName, personName, useHOG=False):
         os.mkdir(directoryToAddTo)
 
     #Save data to file
-    np.savetxt((directoryToAddTo + "/" + identity + ".txt"), encodings[0])
+    np.savetxt((directoryToAddTo + "/" + identity + "Haar.txt"),
+        encodingsHaar[0])
+    np.savetxt((directoryToAddTo + "/" + identity + "Hog.txt"),
+        encodingsHog[0])
 
     print("\n[*] Face successfully added!\n")
 
@@ -166,17 +169,6 @@ def main():
         name = sys.argv[3]
         addPhoto(photoPath, name)
 
-    elif (argument == "addfacehog"):
-        #If user didnt supply a photo path
-        if (len(sys.argv) < 4):
-            print("\n[!] Not enough arguments!\n")
-            return
-
-        #Otherwise add photo to database
-        photoPath = sys.argv[2]
-        name = sys.argv[3]
-        addPhoto(photoPath, name, True)
-
     elif (argument == "run"):
         print("\n[*] Press Q to quit\n")
         runFaceRecognition()
@@ -213,11 +205,9 @@ def main():
         print("3. python3 main.py help : prints this menu")
         print("4. python3 main.py scanphoto image_path : ", end="")
         print("scans a photo for face recognition")
-        print("5. python3 main.py addfacehog image_path person_name:", end="")
-        print(" adds a face encoding to the database using HOG face detection")
-        print("6. python3 main.py runhog : runs webcam face ", end="")
+        print("5. python3 main.py runhog : runs webcam face ", end="")
         print("recognition using HOG face detection")
-        print("7. python3 main.py scanphotohog image_path : ", end="")
+        print("6. python3 main.py scanphotohog image_path : ", end="")
         print("scans a photo for face recognition using HOG face detection\n")
 
     else:

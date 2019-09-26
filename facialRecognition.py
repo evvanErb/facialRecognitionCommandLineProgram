@@ -41,7 +41,8 @@ def recognizeFace(database, faceEncoding):
     bestMatch = None
     bestMatchCount = 0
     for match in matches:
-        if ((matches[match] > 0) and (matches[match] > bestMatchCount)):
+        if ((matches[match] >= MIN_MATCHES_REQUIRED)
+                and (matches[match] > bestMatchCount)):
             bestMatch = match
             bestMatchCount = matches[match]
 
