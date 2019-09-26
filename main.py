@@ -20,13 +20,16 @@ def addPhoto(fileName, personName, useHOG=False):
         print("\n[!] File extenstion must be .jpg!\n")
         return
 
-    elif (not os.path.isfile(fileName)):
+    #Check image exists
+    if (not os.path.isfile(fileName)):
         print("\n[!] File does not exist!\n")
         return
 
-    elif (("/" in personName) or ("." in personName)):
-        print("\n[!] Provided name contains an illegal argument\n")
-        return
+    #Check no illegal characters in file name
+    for c in ILLEGAL_FILE_NAMES:
+        if (c in personName):
+            print("\n[!] Provided name contains an illegal argument\n")
+            return
 
     #Load image
     image = face_recognition.load_image_file(fileName)
@@ -61,12 +64,14 @@ def addPhoto(fileName, personName, useHOG=False):
         if (subdir == directoryToAddTo):
             exists = True
 
-    #If directory doesnt exist make it
+    #If directory doesnt exist, make it
     if (not exists):
         os.mkdir(directoryToAddTo)
 
     #Save data to file
     np.savetxt((directoryToAddTo + "/" + identity + ".txt"), encodings[0])
+
+    print("\n[*] Face successfully added!\n")
 
 def runScanPhotoFaceRecognition(fileName, useHOG=False):
     """
