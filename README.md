@@ -33,3 +33,5 @@ one face in the image or else the facial recognition will not work properly
 TO DO:
 - Bug Check
 - Allow multiple photos to be uploaded at once
+- Fix the current issue of when a file of the same name as an existing file
+ is uploaded it overrides the existing file.
